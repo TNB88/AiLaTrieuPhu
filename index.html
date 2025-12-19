@@ -17,173 +17,160 @@
             margin: 0;
             overflow: hidden;
             touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent; /* Bỏ highlight xanh khi bấm trên iPhone */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Màn hình chờ "BẪY" để kích hoạt âm thanh */
+        /* Màn hình Start */
         #start-screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 11, 28, 1);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            text-align: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 999; text-align: center;
         }
 
-        .btn-big-start {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #dc3545; /* Màu đỏ nổi bật */
-            border: 5px solid #fff;
-            color: #fff;
-            font-size: 25px;
+        .btn-big {
+            padding: 20px 40px;
+            font-size: 22px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
             font-weight: bold;
+            box-shadow: 0 0 20px #28a745;
             cursor: pointer;
-            box-shadow: 0 0 30px #dc3545;
             animation: pulse 1.5s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(220, 53, 69, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* Debug Box - Để ông biết lỗi ở đâu */
+        #debug-log {
+            margin-top: 20px; font-size: 12px; color: yellow;
+            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;
+            max-width: 90%; word-wrap: break-word;
         }
 
-        /* Thang tiền mobile */
-        .money-ladder {
-            position: absolute;
-            right: 5px; top: 5px;
-            background: rgba(0,0,0,0.8);
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 11px;
-            max-height: 25vh;
-            overflow-y: auto;
-            border: 1px solid #f0ad4e;
-        }
+        /* Giao diện Game */
+        .money-ladder { position: absolute; right: 5px; top: 5px; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 5px; font-size: 11px; max-height: 25vh; overflow-y: auto; border: 1px solid #f0ad4e; }
         .money-step.active { background: #f0ad4e; color: #000; font-weight: bold; }
 
         .game-container { width: 95%; max-width: 600px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
-        
-        .question-box {
-            background: #003366; border: 2px solid #fff; border-radius: 10px;
-            padding: 15px; font-size: 16px; font-weight: bold; min-height: 70px;
-            display: flex; align-items: center; justify-content: center;
-        }
-
+        .question-box { background: #003366; border: 2px solid #fff; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: bold; min-height: 80px; display: flex; align-items: center; justify-content: center; }
         .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        
-        .answer-btn {
-            background: #001a33; border: 1px solid #aaa; border-radius: 15px;
-            padding: 15px 5px; color: white; font-size: 14px; min-height: 50px;
-        }
+        .answer-btn { background: #001a33; border: 1px solid #aaa; border-radius: 15px; padding: 15px 5px; color: white; font-size: 14px; min-height: 50px; }
         .answer-btn.selected { background: #f0ad4e; color: black; }
         .answer-btn.correct { background: #28a745 !important; }
         .answer-btn.wrong { background: #dc3545 !important; }
-
-        .lifelines { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        .lifeline-btn { width: 45px; height: 45px; border-radius: 50%; background: #555; border: 1px solid #fff; color: #fff; font-size: 10px; display: flex; justify-content: center; align-items: center;}
-        .lifeline-btn.used { opacity: 0.3; pointer-events: none; }
-
-        #result-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none;
-            flex-direction: column; justify-content: center; align-items: center; z-index: 100;
-        }
+        #result-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <h2 style="color: #f0ad4e; margin-bottom: 20px;">AI LÀ TRIỆU PHÚ</h2>
-        <button class="btn-big-start" onclick="unlockAudioAndStart()">BẤM VÀO ĐÂY<br>ĐỂ CHƠI</button>
-        <p style="margin-top: 20px; font-size: 12px; color: #ccc;">(Bấm nút đỏ để bật loa iPhone)</p>
+        <h1 style="color: #f0ad4e">AI LÀ TRIỆU PHÚ</h1>
+        <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Lưu ý: Gạt nút RUNG bên hông máy lên!</p>
+        
+        <button id="btn-start" class="btn-big" onclick="unlockAudio()">BẤM ĐỂ CHƠI</button>
+        
+        <div id="debug-log">Trạng thái: Đang chờ...</div>
     </div>
 
     <div id="result-screen">
-        <h1 id="result-title" style="color: #fff">GAME OVER</h1>
-        <h2 id="result-money" style="color: #f0ad4e">0 VND</h2>
+        <h1 id="result-title">GAME OVER</h1>
+        <h2 id="result-money">0 VND</h2>
         <button class="answer-btn" style="width: 150px; margin-top: 20px;" onclick="location.reload()">CHƠI LẠI</button>
     </div>
-
     <div class="money-ladder" id="moneyLadder"></div>
-
     <div class="game-container">
-        <div class="question-box" id="questionText">Đang tải câu hỏi...</div>
-
+        <div class="question-box" id="questionText">Loading...</div>
         <div class="answers-grid">
             <button class="answer-btn" onclick="checkAnswer(0)" id="btn0"></button>
             <button class="answer-btn" onclick="checkAnswer(1)" id="btn1"></button>
             <button class="answer-btn" onclick="checkAnswer(2)" id="btn2"></button>
             <button class="answer-btn" onclick="checkAnswer(3)" id="btn3"></button>
         </div>
-
-        <div class="lifelines">
-            <button class="lifeline-btn" id="help5050" onclick="use5050()">50:50</button>
-            <button class="lifeline-btn" id="helpCall" onclick="useCall()">📞</button>
-            <button class="lifeline-btn" id="helpAsk" onclick="useAsk()">👥</button>
-        </div>
     </div>
 
     <script>
-        // DATA
+        // --- LOG SYSTEM (Để ông xem nó bị gì) ---
+        function log(msg) {
+            document.getElementById('debug-log').innerText = "Log: " + msg;
+            console.log(msg);
+        }
+
+        // --- DATA ---
         const moneyTree = ["200K", "400K", "600K", "1Tr", "2Tr", "3Tr", "6Tr", "10Tr", "14Tr", "22Tr", "30Tr", "40Tr", "60Tr", "85Tr", "150 TỶ"];
         const questions = [
-            { q: "SilverBullet là tool gì?", a: ["Nấu ăn", "Check Acc", "Quét nhà", "Sửa xe"], correct: 1 },
-            { q: "Ai là bạn thân của Bình Pro?", a: ["Siri", "Alexa", "Gemini", "Cortana"], correct: 2 },
-            { q: "iPhone không thích điều gì?", a: ["Tiền", "Ốp lưng", "Tự phát nhạc", "Sạc pin"], correct: 2 },
+            { q: "Nút gạt rung của iPhone nằm ở đâu?", a: ["Trên đỉnh", "Dưới đáy", "Bên hông trái", "Không có"], correct: 2 },
+            { q: "Tool SilverBullet dùng để làm gì?", a: ["Nấu ăn", "Check Acc", "Đào Bitcoin", "Chơi Game"], correct: 1 },
             { q: "1 + 1 bằng mấy?", a: ["1", "2", "3", "11"], correct: 1 },
             { q: "Bình Pro có đẹp trai không?", a: ["Không", "Bình thường", "Siêu cấp", "Quá đẹp"], correct: 3 },
+            { q: "Thủ đô Việt Nam?", a: ["HCM", "Hà Nội", "Đà Nẵng", "Cần Thơ"], correct: 1 }
         ];
 
-        // ÂM THANH (Dùng link Github trực tiếp - Load cực nhanh)
-        const sounds = {
-            intro: new Audio("https://github.com/Liozon/WhoWantsToBeAMillionaire-Soundboard/raw/master/sounds/main_theme.mp3"),
-            correct: new Audio("https://github.com/Liozon/WhoWantsToBeAMillionaire-Soundboard/raw/master/sounds/correct_answer.mp3"),
-            wrong: new Audio("https://github.com/Liozon/WhoWantsToBeAMillionaire-Soundboard/raw/master/sounds/wrong_answer.mp3")
+        // --- AUDIO SYSTEM (Dùng Audio thuần để dễ load) ---
+        // Link dự phòng khác ổn định hơn
+        const audioSrc = {
+            intro: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Nhạc dài demo
+            correct: "https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3",
+            wrong: "https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"
         };
+
+        let sounds = {
+            intro: new Audio(audioSrc.intro),
+            correct: new Audio(audioSrc.correct),
+            wrong: new Audio(audioSrc.wrong)
+        };
+        
+        // Cấu hình nhạc
         sounds.intro.loop = true;
+        sounds.intro.volume = 1.0; 
+
+        // Kiểm tra tải nhạc
+        sounds.intro.addEventListener('canplaythrough', () => log("Nhạc nền đã tải xong!"));
+        sounds.intro.addEventListener('error', (e) => log("Lỗi tải nhạc nền! Kiểm tra mạng."));
 
         let currentLevel = 0;
         let isGameRunning = false;
 
-        // --- CHIÊU CUỐI: UNLOCK AUDIO ---
-        function unlockAudioAndStart() {
-            // 1. Phát thử mỗi file 1 tí xíu rồi dừng ngay lập tức
-            // Để trình duyệt đánh dấu là "User đã cho phép phát mấy file này"
+        // --- HÀM QUAN TRỌNG: KÍCH HOẠT ÂM THANH ---
+        function unlockAudio() {
+            log("Đang kích hoạt âm thanh...");
+            
+            // 1. Phát thử TẤT CẢ âm thanh ngay lập tức (bắt buộc trong sự kiện click)
             try {
-                sounds.intro.play().catch(()=>{});
+                // Intro: Phát luôn
+                let playPromise = sounds.intro.play();
                 
-                sounds.correct.volume = 0; // Tắt tiếng tạm
-                sounds.correct.play().then(() => { sounds.correct.pause(); sounds.correct.volume = 1; }).catch(()=>{});
-                
-                sounds.wrong.volume = 0; 
-                sounds.wrong.play().then(() => { sounds.wrong.pause(); sounds.wrong.volume = 1; }).catch(()=>{});
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        log("Nhạc nền ĐANG PHÁT! (Nếu không nghe thấy => Gạt nút rung lên)");
+                    })
+                    .catch(error => {
+                        log("Trình duyệt chặn nhạc: " + error);
+                    });
+                }
 
-            } catch (e) {
-                console.log("Lỗi kích hoạt âm thanh: " + e);
+                // Effect: Phát 0s rồi dừng để "mở khóa"
+                sounds.correct.play().then(() => sounds.correct.pause());
+                sounds.wrong.play().then(() => sounds.wrong.pause());
+
+                // 2. Vào game
+                document.getElementById('start-screen').style.display = 'none';
+                initGame();
+
+            } catch (err) {
+                log("Lỗi Unlock: " + err);
             }
-
-            // 2. Ẩn màn hình chờ & Bắt đầu game thật
-            document.getElementById('start-screen').style.display = 'none';
-            startGame();
         }
 
-        function startGame() {
+        function initGame() {
             currentLevel = 0;
             isGameRunning = true;
             renderMoneyLadder();
             loadQuestion();
-            // Phát lại nhạc nền (lần này là phát thật)
-            sounds.intro.currentTime = 0;
-            sounds.intro.play().catch(e => alert("Vẫn chưa bật được tiếng, hãy tắt chế độ Im lặng bên hông máy!"));
         }
 
-        // --- LOGIC GAME CƠ BẢN ---
         function renderMoneyLadder() {
             const ladder = document.getElementById('moneyLadder');
             ladder.innerHTML = '';
@@ -215,21 +202,24 @@
             if (!isGameRunning) return;
             const correctIndex = questions[currentLevel].correct;
             const selectedBtn = document.getElementById(`btn${index}`);
+            
             selectedBtn.classList.add('selected');
             
             setTimeout(() => {
                 selectedBtn.classList.remove('selected');
                 if (index === correctIndex) {
-                    // Phát tiếng đúng
+                    // PHÁT ĐÚNG
                     sounds.correct.currentTime = 0;
-                    sounds.correct.play();
+                    sounds.correct.play().catch(e => log("Lỗi tiếng đúng: " + e));
+                    
                     selectedBtn.classList.add('correct');
                     setTimeout(() => { currentLevel++; loadQuestion(); }, 1500);
                 } else {
-                    // Phát tiếng sai
+                    // PHÁT SAI
                     sounds.intro.pause();
                     sounds.wrong.currentTime = 0;
-                    sounds.wrong.play();
+                    sounds.wrong.play().catch(e => log("Lỗi tiếng sai: " + e));
+                    
                     selectedBtn.classList.add('wrong');
                     document.getElementById(`btn${questions[currentLevel].correct}`).classList.add('correct');
                     setTimeout(() => endGame(false), 2000);
@@ -243,27 +233,10 @@
             document.getElementById('result-screen').style.display = 'flex';
             document.getElementById('result-title').innerText = isWin ? "BÌNH PRO VÔ ĐỊCH!" : "THUA RỒI...";
             let money = "0";
-            if(isWin) money = moneyTree[14];
+            if(isWin) money = moneyTree[moneyTree.length - 1];
             else if(currentLevel > 0) money = moneyTree[currentLevel - 1];
-            document.getElementById('result-money').innerText = `Tiền cầm về: ${money}`;
+            document.getElementById('result-money').innerText = `Tiền: ${money}`;
         }
-
-        function use5050() {
-            const btn = document.getElementById('help5050');
-            if(btn.classList.contains('used')) return;
-            const correct = questions[currentLevel].correct;
-            let removed = 0;
-            while(removed < 2) {
-                let r = Math.floor(Math.random()*4);
-                if(r !== correct && document.getElementById(`btn${r}`).style.visibility !== 'hidden') {
-                    document.getElementById(`btn${r}`).style.visibility = 'hidden';
-                    removed++;
-                }
-            }
-            btn.classList.add('used');
-        }
-        function useCall() { alert("Vợ bảo đáp án C!"); document.getElementById('helpCall').classList.add('used'); }
-        function useAsk() { alert("Khán giả bảo chọn đại đi!"); document.getElementById('helpAsk').classList.add('used'); }
     </script>
 </body>
 </html>
