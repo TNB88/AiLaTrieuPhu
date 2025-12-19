@@ -1,0 +1,161 @@
+<script>
+    // --- CẤU HÌNH DỮ LIỆU ---
+    const moneyTree = [
+        "200.000", "400.000", "600.000", "1.000.000", "2.000.000", 
+        "3.000.000", "6.000.000", "10.000.000", "14.000.000", "22.000.000",
+        "30.000.000", "40.000.000", "60.000.000", "85.000.000", "150.000.000"
+    ];
+
+    const questions = [
+        { q: "Ai là người tạo ra tool SilverBullet?", a: ["Dân IT", "Bình Pro", "OpenBullet Team", "Hacker Nga"], correct: 2 },
+        { q: "Con vật nào sau đây không thể nhảy?", a: ["Voi", "Chó", "Mèo", "Chuột túi"], correct: 0 },
+        { q: "Thủ đô của Việt Nam là gì?", a: ["TP.HCM", "Huế", "Hà Nội", "Cần Thơ"], correct: 2 },
+        { q: "Trong Dragon Ball, ai là cha của Gohan?", a: ["Vegeta", "Goku", "Piccolo", "Yamcha"], correct: 1 },
+        { q: "Bình Pro đẹp trai nhất xóm nào?", a: ["Xóm Chùa", "Xóm Lá", "Xóm Code", "Cả Thế Giới"], correct: 3 },
+    ];
+
+    let currentLevel = 0;
+    let isGameRunning = false;
+
+    // --- KHAI BÁO ÂM THANH (Dùng file trong máy cho ổn định) ---
+    // Ông nhớ tải file về và để cùng thư mục nhé
+    const sounds = {
+        intro: new Audio('intro.mp3'),
+        correct: new Audio('correct.mp3'),
+        wrong: new Audio('wrong.mp3')
+    };
+    
+    sounds.intro.loop = true; // Nhạc nền lặp lại
+
+    // --- LOGIC GAME ---
+
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        
+        // Kích hoạt nhạc nền (Chrome yêu cầu phải có tương tác mới cho phát)
+        sounds.intro.play().catch(e => console.log("Chưa có file intro.mp3 hoặc lỗi Autoplay"));
+        
+        currentLevel = 0;
+        renderMoneyLadder();
+        loadQuestion();
+        isGameRunning = true;
+    }
+
+    function renderMoneyLadder() {
+        const ladder = document.getElementById('moneyLadder');
+        ladder.innerHTML = '';
+        for (let i = moneyTree.length - 1; i >= 0; i--) {
+            const div = document.createElement('div');
+            div.className = `money-step ${i === currentLevel ? 'active' : ''}`;
+            div.innerText = `${i + 1}. ${moneyTree[i]} VND`;
+            ladder.appendChild(div);
+        }
+    }
+
+    function loadQuestion() {
+        if (currentLevel >= questions.length) {
+            endGame(true); 
+            return;
+        }
+
+        const qData = questions[currentLevel];
+        document.getElementById('questionText').innerText = `Câu ${currentLevel + 1}: ${qData.q}`;
+        
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById(`btn${i}`);
+            btn.innerText = String.fromCharCode(65 + i) + ": " + qData.a[i];
+            btn.className = 'answer-btn'; 
+            btn.style.visibility = 'visible';
+            btn.disabled = false;
+        }
+        renderMoneyLadder();
+    }
+
+    function checkAnswer(index) {
+        if (!isGameRunning) return;
+        
+        const correctIndex = questions[currentLevel].correct;
+        const selectedBtn = document.getElementById(`btn${index}`);
+        const correctBtn = document.getElementById(`btn${correctIndex}`);
+
+        selectedBtn.classList.add('selected');
+
+        setTimeout(() => {
+            selectedBtn.classList.remove('selected');
+            
+            if (index === correctIndex) {
+                // --- ĐÚNG: Phát nhạc đúng ---
+                sounds.correct.play().catch(e => {}); 
+                selectedBtn.classList.add('correct');
+                
+                setTimeout(() => {
+                    currentLevel++;
+                    loadQuestion();
+                }, 1500); // Đợi nhạc đúng chạy một chút rồi qua câu mới
+            } else {
+                // --- SAI: Phát nhạc sai ---
+                sounds.intro.pause(); // Dừng nhạc nền cho kịch tính
+                sounds.wrong.play().catch(e => {});
+                
+                selectedBtn.classList.add('wrong');
+                correctBtn.classList.add('correct'); 
+                setTimeout(() => {
+                    endGame(false);
+                }, 2000);
+            }
+        }, 1000); // Thời gian chờ hồi hộp
+    }
+
+    function endGame(isWin) {
+        sounds.intro.pause();
+        sounds.intro.currentTime = 0;
+
+        isGameRunning = false;
+        const resultScreen = document.getElementById('result-screen');
+        const resultTitle = document.getElementById('result-title');
+        const resultMoney = document.getElementById('result-money');
+
+        resultScreen.style.display = 'flex';
+        
+        let moneyStr = "0";
+        if (isWin) {
+            resultTitle.innerText = "CHÚC MỪNG TỶ PHÚ BÌNH PRO!";
+            moneyStr = moneyTree[questions.length - 1];
+        } else {
+            resultTitle.innerText = "RA VỀ TIẾC NUỐI...";
+            if (currentLevel > 0) moneyStr = moneyTree[currentLevel - 1];
+        }
+        resultMoney.innerText = `Tiền thưởng: ${moneyStr} VND`;
+    }
+
+    // --- QUYỀN TRỢ GIÚP (Giữ nguyên) ---
+    function use5050() { /* ... (Giữ nguyên code cũ) ... */ 
+        const btn = document.getElementById('help5050');
+        if (btn.classList.contains('used')) return;
+        const correct = questions[currentLevel].correct;
+        let removed = 0;
+        while (removed < 2) {
+            let rand = Math.floor(Math.random() * 4);
+            if (rand !== correct && document.getElementById(`btn${rand}`).style.visibility !== 'hidden') {
+                document.getElementById(`btn${rand}`).style.visibility = 'hidden';
+                removed++;
+            }
+        }
+        btn.classList.add('used');
+    }
+
+    function useCall() { /* ... (Giữ nguyên code cũ) ... */
+        const btn = document.getElementById('helpCall');
+        if (btn.classList.contains('used')) return;
+        const correctChar = String.fromCharCode(65 + questions[currentLevel].correct);
+        alert(`📞 Bác Lại Văn Sâm: "Tin bác đi, chọn ${correctChar}!"`);
+        btn.classList.add('used');
+    }
+
+    function useAsk() { /* ... (Giữ nguyên code cũ) ... */
+        const btn = document.getElementById('helpAsk');
+        if (btn.classList.contains('used')) return;
+        alert("📊 Khán giả 100% chọn đáp án đúng!");
+        btn.classList.add('used');
+    }
+</script>
