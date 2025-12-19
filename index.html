@@ -23,17 +23,15 @@
         /* --- CSS MỚI CHO ẢNH --- */
         .question-image {
             max-width: 100%;
-            max-height: 180px; /* Giới hạn chiều cao để không chiếm hết màn hình */
+            max-height: 180px; 
             height: auto;
-            border-radius: 10px; /* Bo góc cho đẹp */
-            border: 3px solid #f0ad4e; /* Viền vàng sang chảnh */
-            margin-bottom: 10px; /* Cách hộp câu hỏi ra một chút */
-            box-shadow: 0 0 15px #f0ad4e; /* Hiệu ứng phát sáng */
-            object-fit: contain; /* Giữ nguyên tỷ lệ ảnh */
+            border-radius: 10px; 
+            border: 3px solid #f0ad4e;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px #f0ad4e;
+            object-fit: contain;
         }
-        /* ----------------------- */
 
-        /* Màn hình Start */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(2, 11, 28, 1);
@@ -46,15 +44,40 @@
             box-shadow: 0 0 20px #28a745; cursor: pointer; animation: pulse 1.5s infinite;
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
         #debug-log {
             margin-top: 20px; font-size: 12px; color: yellow;
             background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;
             max-width: 90%; word-wrap: break-word;
         }
 
-        /* Giao diện Game */
-        .money-ladder { position: absolute; right: 5px; top: 5px; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 5px; font-size: 11px; max-height: 25vh; overflow-y: auto; border: 1px solid #f0ad4e; }
-        .money-step.active { background: #f0ad4e; color: #000; font-weight: bold; }
+        /* --- HIỆU ỨNG THANG TIỀN (QUAN TRỌNG) --- */
+        .money-ladder { 
+            position: absolute; right: 5px; top: 5px; 
+            background: rgba(0,0,0,0.8); padding: 5px; 
+            border-radius: 5px; font-size: 11px; 
+            max-height: 35vh; overflow-y: hidden; /* Ẩn thanh cuộn cho đẹp */
+            border: 1px solid #f0ad4e; 
+            min-width: 100px;
+        }
+
+        .money-step {
+            padding: 2px 5px;
+            color: #888;
+            /* Mặc định ẩn đi và dịch sang phải */
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease-out; /* Hiệu ứng mượt */
+        }
+
+        /* Class này để kích hoạt hiện ra */
+        .money-step.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .money-step.active { background: #f0ad4e; color: #000; font-weight: bold; transform: scale(1.1); padding-left: 10px; }
+        /* ------------------------------------------- */
 
         .game-container { width: 95%; max-width: 600px; text-align: center; display: flex; flex-direction: column; gap: 5px; align-items: center; }
         .question-box { background: #003366; border: 2px solid #fff; border-radius: 10px; padding: 15px; font-size: 16px; font-weight: bold; min-height: 80px; display: flex; align-items: center; justify-content: center; width: 100%; }
@@ -98,13 +121,12 @@
         function log(msg) { document.getElementById('debug-log').innerText = "Log: " + msg; console.log(msg); }
         const moneyTree = ["200K", "400K", "600K", "1Tr", "2Tr", "3Tr", "6Tr", "10Tr", "14Tr", "22Tr", "30Tr", "40Tr", "60Tr", "85Tr", "150 TỶ"];
         
-        // --- SỬA CÂU HỎI CHO HỢP VỚI ẢNH ---
         const questions = [
             { q: "Trần Âu Thường Mượn Tiền Ai?", a: ["Đào Ngọc Thảo", "Nguyên Bình", "Hoàng Anh", "A Và B"], correct: 3 },
             { q: "Đào Ngọc Thảo đi chợ ngày bao nhiêu tiền?", a: ["500.000", "1.000.000", "50.000", "200.000"], correct: 2 },
             { q: "Thảo Có Xinh Đẹp Không?", a: ["Rất Xinh Đẹp", "Trông Ok", "Ưu Nhìn", "Xấu Như Mắm"], correct: 0 },
             { q: "SilverBullet dùng để làm gì?", a: ["Nấu ăn", "Check Acc", "Đào Bitcoin", "Chơi Game"], correct: 1 },
-            { q: "Thảo Có Xinh Đẹp Không?", a: ["Không", "Bình thường", "Siêu cấp Hoa Hậu", "Quá đẹp"], correct: 2 }
+            { q: "Bình Pro có đẹp trai không?", a: ["Không", "Bình thường", "Siêu cấp Hoa Hậu", "Quá đẹp"], correct: 3 }
         ];
 
         const audioSrc = {
@@ -128,27 +150,63 @@
             try {
                 let playPromise = sounds.intro.play();
                 if (playPromise !== undefined) {
-                    playPromise.then(_ => { log("Nhạc nền ĐANG PHÁT! (Nếu không nghe thấy => Gạt nút rung lên)"); })
+                    playPromise.then(_ => { log("Nhạc nền ĐANG PHÁT!"); })
                     .catch(error => { log("Trình duyệt chặn nhạc: " + error); });
                 }
                 sounds.correct.play().then(() => sounds.correct.pause());
                 sounds.wrong.play().then(() => sounds.wrong.pause());
                 document.getElementById('start-screen').style.display = 'none';
+                
+                // GỌI HÀM VỚI THAM SỐ TRUE ĐỂ BẬT HIỆU ỨNG
                 initGame();
             } catch (err) { log("Lỗi Unlock: " + err); }
         }
 
-        function initGame() { currentLevel = 0; isGameRunning = true; renderMoneyLadder(); loadQuestion(); }
-        function renderMoneyLadder() {
-            const ladder = document.getElementById('moneyLadder'); ladder.innerHTML = '';
+        function initGame() { 
+            currentLevel = 0; 
+            isGameRunning = true; 
+            // Render có hiệu ứng (true)
+            renderMoneyLadder(true); 
+            loadQuestion(); 
+        }
+
+        // --- HÀM RENDER CÓ HIỆU ỨNG CHẠY TIỀN ---
+        function renderMoneyLadder(animate = false) {
+            const ladder = document.getElementById('moneyLadder'); 
+            ladder.innerHTML = '';
+            
+            // Duyệt từ trên xuống (để hiển thị 150 Tỷ trên cùng)
             for (let i = moneyTree.length - 1; i >= 0; i--) {
                 const div = document.createElement('div');
                 div.className = `money-step ${i === currentLevel ? 'active' : ''}`;
                 div.innerText = `${i + 1}. ${moneyTree[i]}`;
                 if(i===4 || i===9 || i===14) div.style.color = "#f0ad4e";
+
+                if (animate) {
+                    // TÍNH TOÁN ĐỘ TRỄ: 
+                    // i=0 (200k) trễ ít nhất -> hiện trước
+                    // i=14 (150 tỷ) trễ nhiều nhất -> hiện sau
+                    let delay = i * 70; // 70ms mỗi nấc
+                    div.style.transitionDelay = `${delay}ms`;
+                } else {
+                    // Nếu không cần hiệu ứng (lúc chuyển câu) thì hiện luôn
+                    div.classList.add('show');
+                    div.style.transitionDelay = '0ms';
+                }
+
                 ladder.appendChild(div);
             }
+
+            // Kích hoạt hiệu ứng sau khi đã thêm vào HTML
+            if (animate) {
+                // Đợi 50ms để trình duyệt nhận diện DOM rồi mới thêm class show
+                setTimeout(() => {
+                    const steps = document.querySelectorAll('.money-step');
+                    steps.forEach(s => s.classList.add('show'));
+                }, 50);
+            }
         }
+
         function loadQuestion() {
             if (currentLevel >= questions.length) { endGame(true); return; }
             const qData = questions[currentLevel];
@@ -157,8 +215,10 @@
                 const btn = document.getElementById(`btn${i}`);
                 btn.innerText = `➤ ${qData.a[i]}`; btn.className = 'answer-btn'; btn.style.visibility = 'visible';
             }
-            renderMoneyLadder();
+            // Gọi render lại nhưng KHÔNG chạy hiệu ứng (false) để tránh rối mắt
+            renderMoneyLadder(false);
         }
+
         function checkAnswer(index) {
             if (!isGameRunning) return;
             const correctIndex = questions[currentLevel].correct;
